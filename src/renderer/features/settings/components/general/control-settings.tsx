@@ -522,6 +522,28 @@ export const ControlSettings = () => {
             isHidden: false,
             title: t('setting.playerbarOpenDrawer', { postProcess: 'sentenceCase' }),
         },
+        {
+            control: (
+                <Switch
+                    aria-label={t('setting.mouseNavOverride ', { postProcess: 'sentenceCase' })}
+                    defaultChecked={settings.mouseNavOverride}
+                    onChange={(e) =>
+                        setSettings({
+                            general: {
+                                ...settings,
+                                mouseNavOverride: e.currentTarget.checked,
+                            },
+                        })
+                    }
+                />
+            ),
+            description: t('setting.mouseNavOverride', {
+                context: 'description',
+                postProcess: 'sentenceCase',
+            }),
+            isHidden: false,
+            title: t('setting.mouseNavOverride', { postProcess: 'sentenceCase' }),
+        },
     ];
 
     return <SettingsSection options={controlOptions} />;

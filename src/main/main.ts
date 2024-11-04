@@ -368,6 +368,14 @@ const createWindow = async (first = true) => {
         mainWindow?.webContents.downloadURL(url);
     });
 
+    ipcMain.on('main-player-next', () => {
+        mainWindow?.webContents.send('renderer-player-next');
+    });
+
+    ipcMain.on('main-player-previous', () => {
+        mainWindow?.webContents.send('renderer-player-previous');
+    });
+
     const globalMediaKeysEnabled = store.get('global_media_hotkeys', true) as boolean;
 
     if (globalMediaKeysEnabled) {

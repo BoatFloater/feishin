@@ -233,6 +233,7 @@ export interface SettingsState {
         homeItems: SortableItem<HomeItem>[];
         language: string;
         lastfmApiKey: string;
+        mouseNavOverride: boolean;
         nativeAspectRatio: boolean;
         passwordStore?: string;
         playButtonBehavior: Play;
@@ -379,6 +380,7 @@ const initialState: SettingsState = {
         homeItems,
         language: 'en',
         lastfmApiKey: '',
+        mouseNavOverride: false,
         nativeAspectRatio: false,
         passwordStore: undefined,
         playButtonBehavior: Play.NOW,

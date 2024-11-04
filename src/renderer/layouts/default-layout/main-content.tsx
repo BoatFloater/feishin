@@ -1,4 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import isElectron from 'is-electron';
 import { throttle } from 'lodash';
 import { Outlet, useLocation } from 'react-router';
 import styled from 'styled-components';
@@ -18,6 +19,8 @@ const SideDrawerQueue = lazy(() =>
 );
 
 const MINIMUM_SIDEBAR_WIDTH = 260;
+
+const ipc = isElectron() ? window.electron.ipc : null;
 
 const MainContentContainer = styled.div<{
     $leftSidebarWidth: string;
@@ -43,7 +46,7 @@ export const MainContent = ({ shell }: { shell?: boolean }) => {
     const location = useLocation();
     const { collapsed, leftWidth, rightWidth, rightExpanded } = useSidebarStore();
     const { setSideBar } = useAppStoreActions();
-    const { sideQueueType, showQueueDrawerButton } = useGeneralSettings();
+    const { sideQueueType, showQueueDrawerButton, mouseNavOverride } = useGeneralSettings();
     const [isResizing, setIsResizing] = useState(false);
     const [isResizingRight, setIsResizingRight] = useState(false);
 
@@ -85,14 +88,35 @@ export const MainContent = ({ shell }: { shell?: boolean }) => {
 
     const throttledResize = useMemo(() => throttle(resize, 50), [resize]);
 
+    const handlemouseNavOverride = useCallback(
+        (event: MouseEvent) => {
+            if (!mouseNavOverride) {
+                return;
+            }
+
+            if (event.button === 3) {
+                ipc?.send('main-player-previous');
+                event.preventDefault();
+                event.stopPropagation();
+            } else if (event.button === 4) {
+                ipc?.send('main-player-next');
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        },
+        [mouseNavOverride],
+    );
+
     useEffect(() => {
+        window.addEventListener('mouseup', handlemouseNavOverride);
         window.addEventListener('mousemove', throttledResize);
         window.addEventListener('mouseup', stopResizing);
         return () => {
             window.removeEventListener('mousemove', throttledResize);
             window.removeEventListener('mouseup', stopResizing);
+            window.removeEventListener('mouseup', handlemouseNavOverride);
         };
-    }, [throttledResize, stopResizing]);
+    }, [throttledResize, stopResizing, handlemouseNavOverride]);
 
     return (
         <MainContentContainer
